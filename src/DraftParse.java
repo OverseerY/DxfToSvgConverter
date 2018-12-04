@@ -7,6 +7,7 @@ import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.math.RoundingMode;
@@ -26,11 +27,6 @@ public class DraftParse {
     private double figHeight;
     private double figMinX;
     private double figMinY;
-
-    private double offsetX = 10;
-    private double offsetY = 10;
-
-    private double scale_ratio = 1;
 
     private boolean errors_flag = false;
 
@@ -60,8 +56,6 @@ public class DraftParse {
                 figWidth = doc.getBounds().getWidth();
                 figMinX = doc.getBounds().getMinimumX();
                 figMinY = doc.getBounds().getMinimumY();
-
-                System.out.println(figWidth + " x " + figHeight + "\n" + figMinX + ", " + figMinY + "\n" + doc.getBounds().getMaximumX() + ", " + doc.getBounds().getMaximumY());
 
                 if (doc.containsDXFLayer("0") && doc.containsDXFLayer("1")) {
                     DXFLayer layer1 = doc.getDXFLayer("1");
@@ -172,6 +166,7 @@ public class DraftParse {
                 for (Point2D point : lwpolyline) {
                     Point2D mod_point = point;
                     mod_point = reflectionPointY(mod_point);
+                    mod_point = scalePoint(mod_point);
                     modified_points.add(mod_point);
                 }
                 modified_lwpolylines.add(modified_points);
@@ -183,6 +178,21 @@ public class DraftParse {
 
     private Point2D reflectionPointY(Point2D point) {
         return new Point2D.Double(point.getX(), (-point.getY() + figHeight));
+    }
+
+    private Point2D scalePoint(Point2D point) {
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Dimension screenSize = kit.getScreenSize();
+        int screenWidth = screenSize.width - 50;
+        int screenHeight = screenSize.height - 100;
+        double k = 1;
+        if (figWidth > figHeight) {
+            k = screenWidth / figWidth;
+            return new Point2D.Double(point.getX()*k, point.getY()*k);
+        } else {
+            k = screenHeight / figHeight;
+            return new Point2D.Double(point.getX()*k, point.getY()*k);
+        }
     }
 
     //#region Errors Handling

@@ -41,7 +41,6 @@ public class InterfaceClass {
         f.setVisible(true);
     }
 
-
     public static void createMenuBar(JFrame frame) {
         JMenu fileMenu = new JMenu("Файл");
 
@@ -80,11 +79,6 @@ public class InterfaceClass {
                     paintDraftFromFile(frame, file.getAbsolutePath());
                     frame.setTitle(file.getPath());
                     saveLastPath(file.getParent());
-                    /*
-                    if (Paths.get("errors.txt").toFile().exists()) {
-                        showInfoMessage(frame, "Внимание", "Ошибки во время чтения записаны в файл errors.txt в корневой директории приложения");
-                    }
-                    */
                 } else {
                     System.out.println("Open command cancelled by user");
                 }

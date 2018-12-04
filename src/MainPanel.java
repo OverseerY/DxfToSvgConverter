@@ -13,7 +13,7 @@ public class MainPanel extends JPanel {
     }
 
     public Dimension getPrefferedSize() {
-        return new Dimension(800,600);
+        return new Dimension(820,660);
     }
 
 
