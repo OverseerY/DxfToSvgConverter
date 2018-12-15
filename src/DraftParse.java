@@ -65,13 +65,14 @@ public class DraftParse {
                         layers_with_polylines.add(parseLayerForLwPolylines(layer1));
                         if (isLayerContainsPolylines(layer0)) {
                             layers_with_polylines.add(parseLayerForLwPolylines(layer0));
-                        } else {
+                        }
+                        /*else {
                             String layer1_error = filename + " - " + "Отстутствуют полилинии на слое 0. Отверстия показаны не будут";
                             if (!containsCurrentError(layer1_error)) {
                                 errors.add(layer1_error);
                                 setErrorFlag();
                             }
-                        }
+                        }*/
                     } else {
                         String layer0_error = filename + " - " + "Отстутствуют полилинии на слое 1. Контур отсутсвует";
                         if (!containsCurrentError(layer0_error)) {
@@ -283,27 +284,23 @@ public class DraftParse {
             }
             modified_layers.add(modified_lwpolylines);
         }
-        buildSvg(figWidth, figHeight, modified_layers.get(0), modified_layers.get(1), save_name);
+        buildSvg(figWidth, figHeight, modified_layers, save_name);
     }
 
-    private void buildSvg(double width, double height, ArrayList<ArrayList> contour, ArrayList<ArrayList> holes, String name) {
+    private void buildSvg(double width, double height, ArrayList<ArrayList> layers, String name) {
         DecimalFormat df = new DecimalFormat("#.###");
         df.setRoundingMode(RoundingMode.CEILING);
 
-        String contour_str = "";
-        for (ArrayList<Point2D> points : contour) {
-            for (Point2D point : points) {
-                contour_str += df.format(point.getX()).replace(",", ".") + "," + df.format(point.getY()).replace(",", ".") + " ";
-            }
-        }
+        ArrayList<String> polygons = new ArrayList<>();
 
-        ArrayList<String> hole_polygons = new ArrayList<>();
-        for (ArrayList<Point2D> points : holes) {
-            String polygon = "";
-            for (Point2D point : points) {
-                polygon += df.format(point.getX()).replace(",", ".") + "," + df.format(point.getY()).replace(",", ".") + " ";
+        for (ArrayList<ArrayList> layer : layers) {
+            for (ArrayList<Point2D> points : layer) {
+                String polygon = "";
+                for (Point2D point : points) {
+                    polygon += df.format(point.getX()).replace(",", ".") + "," + df.format(point.getY()).replace(",", ".") + " ";
+                }
+                polygons.add(polygon);
             }
-            hole_polygons.add(polygon);
         }
 
         ArrayList<String> lines = new ArrayList<>();
@@ -316,11 +313,11 @@ public class DraftParse {
         lines.add("height=\"100%\"");
         lines.add("viewBox=\"0 0 " + Math.round(width) + " " + Math.round(height) + "\">");
         lines.add("<g id=\"body\">");
-        lines.add("<polygon points=\"" + contour_str + "\"/>");
+        lines.add("<polygon points=\"" + polygons.get(0) + "\"/>");
         lines.add("</g>");
         lines.add("<g id=\"holes\">");
-        for (int i = 0; i < hole_polygons.size(); i++) {
-            lines.add("<polygon points=\"" + hole_polygons.get(i) + "\" fill=\"white\"/>");
+        for (int i = 1; i < polygons.size(); i++) {
+            lines.add("<polygon points=\"" + polygons.get(i) + "\" fill=\"white\"/>");
         }
         lines.add("</g>");
         lines.add("</svg>");
